@@ -33,6 +33,7 @@ class Document(models.Model):
     text = models.TextField()
     label = models.ForeignKey(Label, null=True, on_delete=models.SET_NULL)
     is_set_manually = models.BooleanField(default=False)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
 
 
 class Classifier(models.Model):

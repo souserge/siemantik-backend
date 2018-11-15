@@ -7,13 +7,13 @@ from siemantik.app.models import Project, Label, Document, Classifier
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = User
-        fields = ('url', 'username', 'email')
+        fields = ('url', 'username', 'email', 'project_set')
 
 
 class ProjectSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Project
-        fields = ('user', 'name', 'language')
+        fields = ('user', 'name', 'language', 'document_set')
 
 
 class LabelSerializer(serializers.HyperlinkedModelSerializer):
