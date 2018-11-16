@@ -29,7 +29,7 @@ class Label(models.Model):
 
 
 class Document(models.Model):
-    title = models.CharField(max_length=100, blank=True)
+    title = models.CharField(max_length=1000, blank=True)
     text = models.TextField()
     label = models.ForeignKey(Label, null=True, on_delete=models.SET_NULL)
     is_set_manually = models.BooleanField(default=False)

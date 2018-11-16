@@ -21,10 +21,7 @@ from siemantik.app import views
 
 # Routers provide a way of automatically determining the URL conf.
 router = routers.DefaultRouter()
-router.register(r'users', views.UserViewSet)
 router.register(r'projects', views.ProjectViewSet)
-router.register(r'labels', views.LabelViewSet)
-router.register(r'documents', views.DocumentViewSet)
 
 
 urlpatterns = [
