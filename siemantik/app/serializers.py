@@ -16,16 +16,18 @@ class ProjectSetSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'language')
 
 
-class ProjectSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Project
-        fields = ('id', 'user', 'name', 'language', 'document_set', 'label_set')
-
-
 class LabelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Label
-        fields = ('id', 'classname')
+        fields = ('id', 'classname', 'display_name')
+
+
+class ProjectSerializer(serializers.ModelSerializer):
+    labels = LabelSerializer(many=True)
+
+    class Meta:
+        model = Project
+        fields = ('id', 'user', 'name', 'language', 'description', 'labels')
 
 
 class DocumentSetSerializer(serializers.ModelSerializer):

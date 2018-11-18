@@ -15,6 +15,7 @@ ALGORITHM_CHOICES = [
 class Project(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=100, blank=False)
+    description = models.TextField()
     language = models.CharField(
         max_length=3,
         choices=LANGUAGE_CHOICES,
@@ -24,8 +25,9 @@ class Project(models.Model):
 
 
 class Label(models.Model):
-    project = models.ForeignKey(Project, on_delete=models.CASCADE)
-    classname = models.CharField(max_length=100, blank=True, unique=True)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='labels')
+    classname = models.CharField(max_length=100, blank=False, unique=True)
+    display_name = models.CharField(max_length=100, blank=True)
 
 
 class Document(models.Model):
@@ -33,7 +35,7 @@ class Document(models.Model):
     text = models.TextField()
     label = models.ForeignKey(Label, null=True, on_delete=models.SET_NULL)
     is_set_manually = models.BooleanField(default=False)
-    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='documents')
 
 
 class Classifier(models.Model):

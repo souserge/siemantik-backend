@@ -32,7 +32,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
     def documents(self, request, pk=None):
         project = self.get_object()
         if request.method == 'GET':
-            serializer = DocumentSetSerializer(project.document_set, many=True)
+            serializer = DocumentSetSerializer(project.documents, many=True)
             return Response(serializer.data)
         elif request.method == 'POST':
             serializer = ProjectDocumentSerializer(data=request.data)
@@ -41,7 +41,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
                 is_set_manually = False
                 print(serializer.data)
                 if serializer.data.get('label_id') is not None:
-                    label = project.label_set.get(id=serializer.data['label_id'])
+                    label = project.labels.get(id=serializer.data['label_id'])
                     is_set_manually = True
 
                 doc = Document.objects.create(
