@@ -4,11 +4,21 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from siemantik.app.models import Project, Label, Document
-from siemantik.app.serializers import ProjectSerializer, LabelSerializer, ProjectDocumentSerializer, DocumentSetSerializer, DocumentSerializer, CreateProjectSerializer
+from siemantik.app.serializers import ProjectSerializer, LabelSerializer, ProjectDocumentSerializer,  ProjectLabelSerializer, DocumentSetSerializer, DocumentSerializer, CreateProjectSerializer
 
 
 def get_user():
     return User.objects.get(id=1)
+
+
+class LabelViewSet(viewsets.ModelViewSet):
+    queryset = Label.objects.all()
+    serializer_class = LabelSerializer
+
+
+class DocumentViewSet(viewsets.ModelViewSet):
+    queryset = Document.objects.all()
+    serializer_class = DocumentSerializer
 
 
 class ProjectViewSet(viewsets.ModelViewSet):
@@ -27,6 +37,19 @@ class ProjectViewSet(viewsets.ModelViewSet):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    @action(detail=True, methods=['post'])
+    def labels(self, request, pk=None):
+        project = self.get_object()
+        if request.method == 'POST':
+            serializer = ProjectLabelSerializer(data=request.data)
+            if serializer.is_valid():
+                label = serializer.save(project=project)
+                return Response(LabelSerializer(label).data)
+
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        return Response(request.method + ' method not supported', status=status.HTTP_400_BAD_REQUEST)
+        
 
     @action(detail=True, methods=['get', 'post'])
     def documents(self, request, pk=None):
@@ -39,18 +62,22 @@ class ProjectViewSet(viewsets.ModelViewSet):
             if serializer.is_valid():
                 label = None
                 is_set_manually = False
-                print(serializer.data)
                 if serializer.data.get('label_id') is not None:
                     label = project.labels.get(id=serializer.data['label_id'])
                     is_set_manually = True
 
+                title = serializer.data.get('title')
+                if title is None:
+                    title = ''
                 doc = Document.objects.create(
-                    title=serializer.data['title'],
+                    title=title,
                     text=serializer.data['text'],
                     label=label, 
                     is_set_manually=is_set_manually, 
                     project=project  
                 )
+                if serializer.data.get('title') is None:
+                    doc.title = 'doc-' + str(doc.id)
                 doc.save()
                 return Response(DocumentSerializer(doc).data)
             else:

@@ -48,6 +48,12 @@ class CreateProjectSerializer(serializers.ModelSerializer):
     
 
 class ProjectDocumentSerializer(serializers.Serializer):
-    title = serializers.CharField(max_length=1000)
+    title = serializers.CharField(max_length=1000, allow_null=True)
     text = serializers.CharField()
     label_id = serializers.IntegerField(allow_null=True)
+
+
+class ProjectLabelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Label
+        fields = ('classname', 'display_name')
