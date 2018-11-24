@@ -4,7 +4,9 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from siemantik.app.models import Project, Label, Document
-from siemantik.app.serializers import ProjectSerializer, LabelSerializer, ProjectDocumentSerializer,  ProjectLabelSerializer, DocumentSetSerializer, DocumentSerializer, CreateProjectSerializer
+from siemantik.app.serializers import  LabelSerializer, ProjectLabelSerializer
+from siemantik.app.serializers import ProjectSerializer, CreateProjectSerializer
+from siemantik.app.serializers import ProjectDocumentSerializer, DocumentSetSerializer, DocumentSerializer, ImportDocumentSerializer
 
 
 def get_user():
@@ -38,17 +40,32 @@ class ProjectViewSet(viewsets.ModelViewSet):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=True, methods=['post'])
+    def import_documents(self, request, pk=None):
+        project = self.get_object()
+        label_id = request.data['label']
+        serializer = ImportDocumentSerializer(data=request.data['documents'], many=True)
+        if serializer.is_valid():
+            label = None
+            is_set_manually = False
+            if label_id is not None:
+                label = Label.objects.get(id=label_id) 
+                is_set_manually = True
+            
+            serializer.save(project=project, label=label, is_set_manually=is_set_manually)
+            return Response('ok')
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+    @action(detail=True, methods=['post'])
     def labels(self, request, pk=None):
         project = self.get_object()
-        if request.method == 'POST':
-            serializer = ProjectLabelSerializer(data=request.data)
-            if serializer.is_valid():
-                label = serializer.save(project=project)
-                return Response(LabelSerializer(label).data)
+        serializer = ProjectLabelSerializer(data=request.data)
+        if serializer.is_valid():
+            label = serializer.save(project=project)
+            return Response(LabelSerializer(label).data)
 
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
-        return Response(request.method + ' method not supported', status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
 
     @action(detail=True, methods=['get', 'post'])

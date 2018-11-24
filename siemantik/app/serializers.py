@@ -10,12 +10,6 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('id', 'url', 'username', 'email', 'project_set')
 
 
-class ProjectSetSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Project
-        fields = ('id', 'name', 'language')
-
-
 class LabelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Label
@@ -57,3 +51,9 @@ class ProjectLabelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Label
         fields = ('classname', 'display_name')
+
+
+class ImportDocumentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Document
+        fields = ('title', 'text')
