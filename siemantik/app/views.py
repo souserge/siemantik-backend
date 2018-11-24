@@ -51,8 +51,8 @@ class ProjectViewSet(viewsets.ModelViewSet):
                 label = Label.objects.get(id=label_id) 
                 is_set_manually = True
             
-            serializer.save(project=project, label=label, is_set_manually=is_set_manually)
-            return Response('ok')
+            docs = serializer.save(project=project, label=label, is_set_manually=is_set_manually)
+            return Response(DocumentSetSerializer(docs, many=True).data)
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

@@ -26,8 +26,11 @@ class Project(models.Model):
 
 class Label(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='labels')
-    classname = models.CharField(max_length=100, blank=False, unique=True)
+    classname = models.CharField(max_length=100, blank=False)
     display_name = models.CharField(max_length=100, blank=True)
+    
+    class Meta:
+        unique_together = ('classname', 'project')
 
 
 class Document(models.Model):
