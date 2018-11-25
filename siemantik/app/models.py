@@ -54,7 +54,7 @@ class Document(models.Model):
 
 
 class ClassifierModel(models.Model):
-    uuid = models.UUIDField(default=uuid.uuid4)
+    name = models.CharField(max_length=100, blank=True, default='')
     used_algorithm = models.CharField(
         max_length=100,
         choices=ALGORITHM_CHOICES, 
