@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from django.contrib.auth.models import User
-from siemantik.app.models import Project, Label, Document, Classifier
+from siemantik.app.models import Project, Label, Document, ClassifierModel
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -38,7 +38,7 @@ class DocumentSerializer(serializers.ModelSerializer):
 class CreateProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
-        fields = ('name', 'language')
+        fields = ('name', 'language', 'description')
     
 
 class ProjectDocumentSerializer(serializers.Serializer):

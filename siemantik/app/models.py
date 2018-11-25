@@ -1,7 +1,7 @@
 import uuid
 from django.db import models
 from django.contrib.auth.models import User
-
+from picklefield.fields import PickledObjectField
 
 LANGUAGE_CHOICES = [('ru', 'Russian')]
 
@@ -9,6 +9,16 @@ ALGORITHM_CHOICES = [
     ('nb', 'Naive Bayes'),
     ('svm', 'Support Vector Machine'),
     ('mlp', 'Multi Layer Perceprton'),
+]
+
+NOT_TRAINED = 0
+TRAINING = 1
+TRAINED = 2
+
+MODEL_STATUS_CHOICES = [
+    (NOT_TRAINED, 'Not trained'),
+    (TRAINING, 'Training'),
+    (TRAINED, 'Trained')
 ]
 
 
@@ -38,10 +48,12 @@ class Document(models.Model):
     text = models.TextField()
     label = models.ForeignKey(Label, null=True, on_delete=models.SET_NULL)
     is_set_manually = models.BooleanField(default=False)
+    label_probability = models.FloatField(blank=True, default=0)
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='documents')
 
 
-class Classifier(models.Model):
+
+class ClassifierModel(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4)
     used_algorithm = models.CharField(
         max_length=100,
@@ -49,5 +61,12 @@ class Classifier(models.Model):
         default=ALGORITHM_CHOICES[0],
         blank=False,
     )
-    model_data = models.CharField(max_length=2500, blank=False)
-    project = models.OneToOneField(Project, on_delete=models.CASCADE)
+    parameters = PickledObjectField()
+    hyperparameters = PickledObjectField()
+    model_status = models.IntegerField(
+        choices=MODEL_STATUS_CHOICES,
+        default=NOT_TRAINED,
+        blank=False
+    )
+    validation_results = PickledObjectField()
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='models')

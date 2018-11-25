@@ -34,6 +34,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
                 user=get_user(),
                 name=serializer.data['name'],
                 language=serializer.data['language'],
+                description=serializer.data['description']
             )
             return Response(ProjectSerializer(project).data)
         else:
