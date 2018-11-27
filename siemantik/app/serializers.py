@@ -57,3 +57,8 @@ class ImportDocumentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Document
         fields = ('title', 'text')
+
+class ClassifierModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ClassifierModel
+        fields = ('id', 'name', 'used_algorithm', 'model_status')

@@ -9,6 +9,8 @@ djangorestframework = "*"
 markdown = "*"
 django-cors-headers = "*"
 django-picklefield = "*"
+numpy = "*"
+sklearn = "*"
 
 [dev-packages]
 pylint = "*"

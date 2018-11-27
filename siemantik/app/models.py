@@ -61,8 +61,7 @@ class ClassifierModel(models.Model):
         default=ALGORITHM_CHOICES[0],
         blank=False,
     )
-    parameters = PickledObjectField()
-    hyperparameters = PickledObjectField()
+    estimator = PickledObjectField()
     model_status = models.IntegerField(
         choices=MODEL_STATUS_CHOICES,
         default=NOT_TRAINED,
