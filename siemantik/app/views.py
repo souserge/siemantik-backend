@@ -3,14 +3,15 @@ from django.contrib.auth.models import User
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from siemantik.app.models import Project, Label, Document, ClassifierModel
+from siemantik.app.models import Project, Label, Document, ClassifierModel, TRAINED, TRAINING
 from siemantik.app.serializers import  LabelSerializer, ProjectLabelSerializer
 from siemantik.app.serializers import ProjectSerializer, CreateProjectSerializer
 from siemantik.app.serializers import DocumentSetSerializer, DocumentSerializer
 from siemantik.app.serializers import ProjectDocumentSerializer, ImportDocumentSerializer
 from siemantik.app.serializers import ClassifierModelSerializer
 
-from .classifiers import nb
+from siemantik.app.classifiers.classify import classify
+from siemantik.app.classifiers.train import train 
 
 def get_user():
     return User.objects.get(id=1)
@@ -33,26 +34,35 @@ class ClassifierModelViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post'])
     def train(self, request, pk=None):
+        model = self.get_object()
+        model.model_status = TRAINING
+        model.save()
+
         document_ids = request.data['documents']
         documents = map(lambda d: Document.objects.get(id=d), document_ids)
-        model = self.get_object()
-        if model.used_algorithm == 'nb':
-            estimator, validation_results = nb.train(documents)
-            model.estimator = estimator
-            model.validation_results = validation_results
-            model.save()
-            return Response('ok')
+
+        estimator, validation_results = train(model.used_algorithm, documents)
+
+        model.model_status = TRAINED
+        model.estimator = estimator
+        model.validation_results = validation_results
+        model.save()
+
+        return Response({ 'cv_accuracy': ClassifierModelSerializer.get_cv_accuracy(None, model) })
 
 
-    @action(detail=True, methods=['get'])
+    @action(detail=True, methods=['post'])
     def classify(self, request, pk=None):
         document_ids = request.data['documents']
-        documents = map(lambda d: Document.objects.get(id=d), document_ids)
+        documents = list(map(lambda d: Document.objects.get(id=d), document_ids))
+
         model = self.get_object()
-        if model.used_algorithm == 'nb':
-            probabilities = nb.classify(model.estimator, documents)
-            print(probabilities)
-            return Response('ok')
+        model.model_status = TRAINED
+        model.save()
+        print(documents)
+        probabilities = classify(model.estimator, documents)
+        print(probabilities)
+        return Response(probabilities)
 
 
 class ProjectViewSet(viewsets.ModelViewSet):

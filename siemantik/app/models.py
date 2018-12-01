@@ -61,11 +61,11 @@ class ClassifierModel(models.Model):
         default=ALGORITHM_CHOICES[0],
         blank=False,
     )
-    estimator = PickledObjectField()
+    estimator = PickledObjectField(null=True)
     model_status = models.IntegerField(
         choices=MODEL_STATUS_CHOICES,
         default=NOT_TRAINED,
         blank=False
     )
-    validation_results = PickledObjectField()
+    validation_results = PickledObjectField(null=True)
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='models')

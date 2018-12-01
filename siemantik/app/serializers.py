@@ -59,6 +59,15 @@ class ImportDocumentSerializer(serializers.ModelSerializer):
         fields = ('title', 'text')
 
 class ClassifierModelSerializer(serializers.ModelSerializer):
+    cv_accuracy = serializers.SerializerMethodField()
+
     class Meta:
         model = ClassifierModel
-        fields = ('id', 'name', 'used_algorithm', 'model_status')
+        fields = ('id', 'name', 'used_algorithm', 'model_status', 'cv_accuracy')
+
+    def get_cv_accuracy(self, obj):
+        vr = obj.validation_results
+        if vr is not None:
+            return vr.get('accuracy')
+        else:
+            return None
