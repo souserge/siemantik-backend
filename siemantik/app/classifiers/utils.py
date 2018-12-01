@@ -1,6 +1,20 @@
 import numpy as np
 from pymystem3 import Mystem
 
+mystems = list(map(
+    lambda i: { 'id': i, 'mystem': Mystem(), 'in_use': False },
+    range(3)
+))
+
+def get_mystem():
+    for mys in mystems:
+        if not mys['in_use']:
+            return mys['mystem']
+    else:
+        new_mys = Mystem()
+        return new_mys
+
+
 def documents_to_xy(documents):
     X = []
     y = []
@@ -12,7 +26,7 @@ def documents_to_xy(documents):
 
 
 def text_to_lemmas(text):
-    mystem = Mystem()
+    mystem = get_mystem()
     lemmas = mystem.lemmatize(text)
     lemmas_no_spaces = list(
         filter(
