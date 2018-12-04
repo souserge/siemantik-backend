@@ -99,6 +99,22 @@ class ProjectViewSet(viewsets.ModelViewSet):
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    @action(detail=True, methods=['post'])
+    def set_doc_labels(self, request, pk=None):
+        project = self.get_object()
+        documents = request.data['documents']
+        labels = Label.objects.all()
+        for doc in documents:
+            doc_model = Document.objects.get(id=doc.get('id'))
+            doc_model.label = labels.get(id=doc.get('label'))
+            doc_model.is_set_manually = False
+            doc_model.save()
+            print(doc_model)
+
+        return Response('ok')
+
+
+
 
     @action(detail=True, methods=['post'])
     def labels(self, request, pk=None):
