@@ -25,7 +25,7 @@ MODEL_STATUS_CHOICES = [
 class Project(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=100, blank=False)
-    description = models.TextField()
+    description = models.TextField(blank=True)
     language = models.CharField(
         max_length=3,
         choices=LANGUAGE_CHOICES,
