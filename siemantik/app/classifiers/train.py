@@ -1,13 +1,38 @@
 import pickle as pkl
+import numpy as np
 from time import time
 from scipy.stats import randint, uniform, expon
 from sklearn.linear_model import SGDClassifier
 from sklearn.naive_bayes import MultinomialNB
+from sklearn.neural_network import MLPClassifier
+from sklearn.preprocessing import StandardScaler
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import RandomizedSearchCV
 
 from siemantik.app.classifiers.utils import documents_to_xy, proba_to_classes, text_to_lemmas
+
+class LogDist:
+    def __init__(self, low=2, high=4.5):
+        self.low = low
+        self.high = high
+            
+    def rvs(self, random_state=None):
+        return np.power(10, -np.random.uniform(self.low,self.high))
+
+
+class HLDist:
+    def __init__(self, min_l=1, max_l=2, min_n=20, max_n=100):
+        self.min_l = min_l
+        self.max_l = max_l
+        self.min_n = min_n
+        self.max_n = max_n
+        
+    def rvs(self, random_state=None):
+        layers = range(np.random.randint(self.min_l, self.max_l + 1))
+        
+        return tuple(map(lambda x: np.random.randint(self.min_n, self.max_n + 1), layers))
+
 
 def nb():
     tfidf = TfidfVectorizer()
@@ -47,7 +72,27 @@ def svm():
     return pipeline, parameters
 
 def mlp():
-    return nb()
+    tfidf = TfidfVectorizer()
+    scaler = StandardScaler(with_mean=False)
+    mlp = MLPClassifier(activation='relu', max_iter=1000)
+    pipeline = Pipeline([
+        ('tfidf', tfidf),
+        ('scaler', scaler),
+        ('mlp', mlp),
+    ])
+
+    parameters = {
+        'tfidf__max_df': uniform(0.5,0.5), 
+        'tfidf__max_features': randint(1000, 10000), 
+        'tfidf__ngram_range': [(1, 1), (1, 2)], 
+        'tfidf__use_idf': [True, False],
+        'mlp__alpha': LogDist(),
+        'mlp__learning_rate_init': LogDist(2, 3.8),
+        'mlp__hidden_layer_sizes': HLDist(),
+    }
+
+    return pipeline, parameters
+
 
 
 def classifier(type):
